@@ -1,14 +1,12 @@
-# Python String Cleaning + Regex
+# Python Regex & String Cleaning
 
-# Golden Questions & Answers Notes
+# Golden Notes V2
 
-# By Your Friend GPT 😎
+### By Your Friend GPT 😎
 
 ---
 
-# Q1. Why do we need String Cleaning?
-
-## Answer
+# 1. Why Do We Need String Cleaning?
 
 Real-world data is messy.
 
@@ -20,9 +18,9 @@ Examples:
 "shiv kumar"
 ```
 
-Humans see the same person.
+Humans see the same value.
 
-Computers see different strings.
+Computers see:
 
 ```python
 "Shiv Kumar" != "SHIV KUMAR"
@@ -32,9 +30,7 @@ Therefore we clean data before analysis.
 
 ---
 
-# Q2. Why does Pandas provide `.str`?
-
-## Answer
+# 2. Why Does Pandas Use `.str`?
 
 Normal Python:
 
@@ -44,7 +40,7 @@ Normal Python:
 
 works on ONE string.
 
-DataFrame:
+DataFrame column:
 
 ```python
 df["name"]
@@ -58,13 +54,11 @@ Therefore Pandas provides:
 df["name"].str.lower()
 ```
 
-which applies operation on every row.
+which applies the operation to every row.
 
 ---
 
-# Q3. What is Vectorization?
-
-## Answer
+# 3. What is Vectorization?
 
 Instead of:
 
@@ -73,7 +67,7 @@ for name in names:
     print(name.lower())
 ```
 
-Pandas does:
+Pandas performs operations on the entire column:
 
 ```python
 df["name"].str.lower()
@@ -81,19 +75,17 @@ df["name"].str.lower()
 
 Benefits:
 
-* cleaner code
-* faster execution
-* production style
+* Faster
+* Cleaner
+* Production style
 
 ---
 
-# Q4. What does strip() do?
+# 4. Common String Methods
 
-## Answer
+## strip()
 
 Removes leading and trailing spaces.
-
-Example:
 
 ```python
 "  Shiv Kumar  ".strip()
@@ -119,41 +111,23 @@ Output:
 
 Middle spaces remain.
 
-Only outer spaces removed.
-
 ---
 
-# Q5. What does lower() do?
-
-## Answer
-
-Converts text to lowercase.
-
-Example:
+## lower()
 
 ```python
 "TORONTO".lower()
 ```
 
-Output:
+↓
 
 ```python
 "toronto"
 ```
 
-Useful for:
-
-* joins
-* grouping
-* comparisons
-
 ---
 
-# Q6. What does upper() do?
-
-## Answer
-
-Converts text to uppercase.
+## upper()
 
 ```python
 "toronto".upper()
@@ -167,11 +141,7 @@ Converts text to uppercase.
 
 ---
 
-# Q7. What does title() do?
-
-## Answer
-
-Capitalizes first letter of every word.
+## title()
 
 ```python
 "shiv kumar".title()
@@ -185,20 +155,89 @@ Capitalizes first letter of every word.
 
 ---
 
-# Q8. What is Regex?
+# 5. Why Is This Unsafe?
 
-## Answer
+```python
+df = df.apply(
+    lambda col:
+    col.str.strip()
+    if col.dtype == "object"
+    else col
+)
+```
 
-Regex = Pattern Matching Language.
+Because:
+
+```python
+dtype = object
+```
+
+does NOT mean string.
+
+It can contain:
+
+* strings
+* lists
+* dictionaries
+* tuples
+
+If a list column is encountered:
+
+```python
+['7821']
+```
+
+Pandas attempts:
+
+```python
+['7821'].strip()
+```
+
+which is invalid.
+
+Result:
+
+```python
+NaN
+```
+
+---
+
+# Safer Approach
+
+```python
+text_cols = [
+    "customer_info",
+    "email",
+    "phone",
+    "order_details"
+]
+
+df[text_cols] = (
+    df[text_cols]
+    .apply(lambda x: x.str.strip())
+)
+```
+
+Why safer?
+
+Because we explicitly select columns we KNOW contain strings.
+
+---
+
+# 6. What is Regex?
+
+Regex = Pattern Matching Language
 
 Used for:
 
-* emails
-* phone numbers
-* dates
+* Email validation
+* Phone numbers
+* Dates
 * IDs
-* log parsing
+* Log parsing
 * NLP
+* Data Cleaning
 
 Think:
 
@@ -206,9 +245,7 @@ Think:
 
 ---
 
-# Q9. Why do we use r""?
-
-## Answer
+# 7. Why Use Raw Strings?
 
 Always write:
 
@@ -216,7 +253,13 @@ Always write:
 r"\d+"
 ```
 
-because:
+instead of:
+
+```python
+"\d+"
+```
+
+Reason:
 
 ```python
 \
@@ -224,164 +267,32 @@ because:
 
 has special meaning in Python.
 
-Raw strings prevent escape confusion.
+Raw strings avoid escape problems.
 
 ---
 
-# Q10. What does \d mean?
+# 8. Important Regex Symbols
 
-## Answer
-
-One digit.
-
-Example:
-
-```python
-re.findall(r"\d", "Age 25")
-```
-
-Output:
-
-```python
-['2', '5']
-```
-
----
-
-# Q11. What does \d+ mean?
-
-## Answer
-
-Continuous digits.
-
-Example:
-
-```python
-re.findall(r"\d+", "Age 25")
-```
-
-Output:
-
-```python
-['25']
-```
+| Pattern | Meaning            |
+| ------- | ------------------ |
+| \d      | One digit          |
+| \d+     | Full number        |
+| \D      | Not digit          |
+| \w      | One word character |
+| \w+     | Full word          |
+| \s      | Whitespace         |
+| +       | One or more        |
+| *       | Zero or more       |
+| ?       | Optional           |
+| {n}     | Exactly n          |
+| ^       | Start              |
+| $       | End                |
 
 ---
 
-# Q12. Difference between \d and \d+?
+# 9. Understanding Character Sets []
 
-## Answer
-
-```python
-\d
-```
-
-means one digit.
-
-```python
-\d+
-```
-
-means full number.
-
-Example:
-
-```python
-Age 25
-```
-
-Results:
-
-```python
-\d   → ['2','5']
-\d+  → ['25']
-```
-
----
-
-# Q13. What does \w mean?
-
-## Answer
-
-One word character.
-
-Includes:
-
-* letters
-* digits
-* underscore
-
-Example:
-
-```python
-re.findall(r"\w", "VIP123")
-```
-
-Output:
-
-```python
-['V','I','P','1','2','3']
-```
-
----
-
-# Q14. What does \w+ mean?
-
-## Answer
-
-Continuous word characters.
-
-Example:
-
-```python
-re.findall(r"\w+", "VIP123")
-```
-
-Output:
-
-```python
-['VIP123']
-```
-
----
-
-# Q15. What does \D mean?
-
-## Answer
-
-NOT digit.
-
-Example:
-
-```python
-re.findall(r"\D+", "VIP123")
-```
-
-Output:
-
-```python
-['VIP']
-```
-
----
-
-# Q16. What does \s mean?
-
-## Answer
-
-Whitespace.
-
-Includes:
-
-* space
-* tab
-* newline
-
----
-
-# Q17. What do [] mean?
-
-## Answer
+## What Does [] Mean?
 
 Character Set.
 
@@ -405,7 +316,7 @@ Example:
 
 Matches:
 
-```python
+```text
 A
 B
 C
@@ -413,11 +324,9 @@ C
 
 ---
 
-# Q18. Why does [a-zA-Z] return one letter at a time?
+# BIG CONFUSION CLEARED
 
-## Answer
-
-Pattern:
+Many students think:
 
 ```python
 [a-zA-Z]
@@ -425,7 +334,15 @@ Pattern:
 
 means:
 
-ONE alphabet.
+> return one letter only
+
+Not exactly.
+
+It means:
+
+> THIS PATTERN can match ONE letter.
+
+Then regex continues applying the pattern repeatedly.
 
 Example:
 
@@ -439,25 +356,11 @@ Output:
 ['S','h','i','v']
 ```
 
-Regex matches one character at a time.
+Regex keeps finding one-letter matches.
 
 ---
 
-# Q19. Why does [a-zA-Z]+ return Shiv?
-
-## Answer
-
-Because:
-
-```python
-+
-```
-
-means:
-
-one or more continuously.
-
-Example:
+# Why Does This Return Shiv?
 
 ```python
 re.findall(r"[a-zA-Z]+", "Shiv")
@@ -469,34 +372,23 @@ Output:
 ['Shiv']
 ```
 
-Regex keeps taking letters until pattern breaks.
-
----
-
-# Q20. Why does [a-zA-Z\s]+ return Shiv Kumar?
-
-## Answer
-
-Allowed characters:
-
-* letters
-* spaces
-
-And:
+Because:
 
 ```python
 +
 ```
 
-means continuous matching.
+means:
 
-Therefore:
+> Keep taking matching characters continuously.
+
+---
+
+# Why Does This Return Shiv Kumar?
 
 ```python
-Shiv Kumar
+re.findall(r"[a-zA-Z\s]+", "Shiv Kumar")
 ```
-
-becomes ONE match.
 
 Output:
 
@@ -504,34 +396,219 @@ Output:
 ['Shiv Kumar']
 ```
 
+Because allowed characters are:
+
+* letters
+* spaces
+
+and `+` keeps consuming characters continuously.
+
 ---
 
-# Q21. What does [^a-zA-Z] mean?
+# Golden Memory
 
-## Answer
+| Pattern     | Result     |
+| ----------- | ---------- |
+| [a-zA-Z]    | one letter |
+| [a-zA-Z]+   | full word  |
+| [a-zA-Z\s]+ | full name  |
 
-NOT alphabet.
+---
 
-Example:
+# 10. Understanding Quantifiers
+
+## +
+
+One or more
 
 ```python
-Anjali@123
+\d+
+```
+
+Examples:
+
+```text
+1
+12
+123
+12345
+```
+
+---
+
+## *
+
+Zero or more
+
+```python
+\d*
 ```
 
 Matches:
 
-```python
-@
+```text
+(empty)
 1
-2
-3
+12
+123
 ```
 
 ---
 
-# Q22. Why does ^ mean two different things?
+## ?
 
-## Answer
+Optional
+
+```python
+\+?
+```
+
+Matches:
+
+```text
++1
+1
+```
+
+Both valid.
+
+---
+
+## {n}
+
+Exactly n occurrences.
+
+```python
+\d{5}
+```
+
+Matches:
+
+```text
+12345
+```
+
+Only.
+
+---
+
+# Edge Case
+
+```python
+re.findall(r"\d{2}", "123456")
+```
+
+Output:
+
+```python
+['12','34','56']
+```
+
+NOT:
+
+```python
+['123456']
+```
+
+---
+
+# 11. What Does \d Mean?
+
+```python
+re.findall(r"\d", "Age 25")
+```
+
+Output:
+
+```python
+['2','5']
+```
+
+One digit.
+
+---
+
+# 12. What Does \d+ Mean?
+
+```python
+re.findall(r"\d+", "Age 25")
+```
+
+Output:
+
+```python
+['25']
+```
+
+Full number.
+
+---
+
+# 13. What Does \w Mean?
+
+Includes:
+
+* letters
+* digits
+* underscore
+
+Example:
+
+```python
+re.findall(r"\w", "VIP123")
+```
+
+Output:
+
+```python
+['V','I','P','1','2','3']
+```
+
+---
+
+# 14. What Does \w+ Mean?
+
+```python
+re.findall(r"\w+", "VIP123")
+```
+
+Output:
+
+```python
+['VIP123']
+```
+
+---
+
+# 15. What Does \D Mean?
+
+NOT digit.
+
+```python
+re.findall(r"\D+", "VIP123")
+```
+
+Output:
+
+```python
+['VIP']
+```
+
+---
+
+# 16. What Does \s Mean?
+
+Whitespace.
+
+Includes:
+
+* space
+* tab
+* newline
+
+---
+
+# 17. Understanding ^
 
 Outside brackets:
 
@@ -543,6 +620,62 @@ means:
 
 Starts with Order.
 
+---
+
+Example:
+
+```python
+Order ID: 7821
+```
+
+Match.
+
+---
+
+Example:
+
+```python
+Refund Order ID: 7821
+```
+
+No match.
+
+---
+
+# 18. Understanding $
+
+```python
+pending$
+```
+
+means:
+
+Ends with pending.
+
+---
+
+Example:
+
+```python
+Order pending
+```
+
+Match.
+
+---
+
+Example:
+
+```python
+Order pending tomorrow
+```
+
+No match.
+
+---
+
+# 19. Understanding [^ ]
+
 Inside brackets:
 
 ```python
@@ -553,73 +686,132 @@ means:
 
 NOT lowercase letters.
 
-Very important edge case.
-
 ---
-
-# Q23. What does $ mean?
-
-## Answer
-
-End of string.
 
 Example:
 
 ```python
-pending$
+Anjali@123
+```
+
+Matches:
+
+```text
+@
+1
+2
+3
+```
+
+---
+
+# IMPORTANT EDGE CASE
+
+Outside brackets:
+
+```python
+^
 ```
 
 means:
 
-Must end with pending.
+Start of string.
+
+Inside brackets:
+
+```python
+[^a-z]
+```
+
+means:
+
+NOT.
+
+Completely different meaning.
 
 ---
 
-# Q24. What is findall()?
+# 20. search() vs findall()
 
-## Answer
+## search()
+
+Returns FIRST match only.
+
+```python
+re.search(r"\d+", "A123 B456")
+```
+
+Returns:
+
+```python
+123
+```
+
+only.
+
+---
+
+## findall()
 
 Returns ALL matches.
 
-Example:
+```python
+re.findall(r"\d+", "A123 B456")
+```
+
+Returns:
 
 ```python
-re.findall(r"\d+", "Order 7821 Refund 9981")
+['123','456']
+```
+
+---
+
+# Golden Memory
+
+search()
+
+↓
+
+One
+
+findall()
+
+↓
+
+Many
+
+---
+
+# 21. What is a Match Object?
+
+```python
+m = re.search(r"\d+", "Age 25")
 ```
 
 Output:
 
 ```python
-['7821','9981']
+<match object>
+```
+
+To get value:
+
+```python
+m.group()
+```
+
+Output:
+
+```python
+25
 ```
 
 ---
 
-# Q25. Why does findall() return a list?
+# 22. What is extract()?
 
-## Answer
-
-Because multiple matches may exist.
-
-Even one match returns:
-
-```python
-['7821']
-```
-
-instead of:
-
-```python
-7821
-```
-
----
-
-# Q26. What is extract()?
-
-## Answer
-
-Extracts ONE structured value.
+Used when business expects ONE structured value.
 
 Example:
 
@@ -633,7 +825,7 @@ Output:
 7821
 ```
 
-not
+Not:
 
 ```python
 ['7821']
@@ -641,85 +833,101 @@ not
 
 ---
 
-# Q27. When should I use findall()?
+# 23. findall() vs extract()
 
-## Answer
+## findall()
 
-When multiple values may exist.
-
-Example:
+Returns:
 
 ```python
-Order 7821 Refund 9981
+['7821']
 ```
 
-Output:
-
-```python
-['7821','9981']
-```
+Always list.
 
 ---
 
-# Q28. When should I use extract()?
+## extract()
 
-## Answer
-
-When business expects ONE value.
-
-Example:
-
-```python
-Order ID: 7821
-```
-
-Output:
+Returns:
 
 ```python
 7821
 ```
 
+Scalar value.
+
 ---
 
-# Q29. What is a Capture Group?
+# Production Rule
 
-## Answer
+Use:
 
-Parentheses:
+```python
+extract()
+```
+
+for database columns.
+
+Use:
+
+```python
+findall()
+```
+
+for exploration.
+
+---
+
+# 24. Capture Groups ()
+
+Most Important Regex Concept
+
+Without capture group:
+
+```python
+findall(r"Order ID:\s*\d+")
+```
+
+Output:
+
+```python
+['Order ID: 7821']
+```
+
+Whole pattern returned.
+
+---
+
+With capture group:
+
+```python
+findall(r"Order ID:\s*(\d+)")
+```
+
+Output:
+
+```python
+['7821']
+```
+
+Only captured part returned.
+
+---
+
+# Golden Rule
 
 ```python
 ()
 ```
 
-create capture groups.
+means:
 
-Example:
-
-```python
-r"Order ID:\s*(\d+)"
-```
-
-captures:
-
-```python
-7821
-```
-
-only.
-
-Without parentheses:
-
-```python
-Order ID: 7821
-```
-
-entire match returned.
+Capture this part.
 
 ---
 
-# Q30. What is re.sub()?
-
-## Answer
+# 25. What is re.sub()?
 
 Replace matches.
 
@@ -737,17 +945,29 @@ VIP
 
 ---
 
-# Q31. What is re.split()?
+Example
 
-## Answer
+```python
+re.sub(r"_", " ", "John_Doe")
+```
+
+Output:
+
+```python
+John Doe
+```
+
+---
+
+# 26. What is re.split()?
 
 Split text using regex.
 
-Example:
-
 ```python
-re.split(r"[,;\s]+",
-         "apple,banana;orange mango")
+re.split(
+    r"[,;\s]+",
+    "apple,banana;orange mango"
+)
 ```
 
 Output:
@@ -758,73 +978,101 @@ Output:
 
 ---
 
-# Q32. What does {5} mean?
-
-## Answer
-
-Exactly 5 occurrences.
-
-Example:
+# 27. Understanding This Phone Pattern
 
 ```python
-\d{5}
+r"\+?\d[\d\s\-]+"
 ```
 
-means:
+Breakdown:
 
-Exactly 5 digits.
+```python
+\+?
+```
+
+optional plus sign
 
 ---
 
-# Q33. Difference between + and {5}?
-
-## Answer
-
 ```python
-\d+
+\d
 ```
 
-Any length.
-
-```python
-\d{5}
-```
-
-Exactly 5 digits.
+first digit
 
 ---
 
-# Q34. Why did .str.strip() create NaN on my regex column?
+```python
+[\d\s\-]+
+```
 
-## Answer
+allow:
+
+* digits
+* spaces
+* hyphens
+
+continuously
+
+---
+
+Matches:
+
+```text
++1-437-555-1234
+4375559999
++1 647 123 8888
+```
+
+---
+
+# Why This Is Wrong?
+
+```python
+r"[\+?\d[\d\s\-]+"
+```
 
 Because:
 
 ```python
-findall()
+[]
 ```
 
-created lists:
+creates ONE character set.
+
+Inside brackets:
 
 ```python
-['7821']
+?
 ```
 
-Lists do not support:
-
-```python
-strip()
-```
-
-Pandas converted invalid operations to NaN.
+loses its regex meaning and becomes a literal character.
 
 ---
 
-# ADVANCED REAL-WORLD QUESTIONS
+# Golden Rule
 
-## Extract Ticket Code
+Outside brackets:
 
-Text:
+```python
+?
+```
+
+means optional.
+
+Inside brackets:
+
+```python
+[?]
+```
+
+means actual question mark.
+
+---
+
+# 28. Real Production Examples
+
+## Extract Ticket ID
 
 ```python
 Ticket#A123 created
@@ -846,8 +1094,6 @@ A123
 
 ## Extract Error Code
 
-Text:
-
 ```python
 ERROR500 occurred
 ```
@@ -866,57 +1112,55 @@ Output:
 
 ---
 
-## Extract Email Domain
-
-Text:
+## Extract VIP ID
 
 ```python
-support@company.com
+Shiv Kumar (VIP123)
 ```
 
-Regex idea:
-
-Extract everything after:
+Regex:
 
 ```python
-@
+r"(VIP\d+)"
 ```
 
 Output:
 
 ```python
-company.com
+VIP123
 ```
 
 ---
 
-## Extract IP Address
-
-Text:
+## Extract Order ID
 
 ```python
-192.168.1.1
+Order ID: 7821
 ```
 
-Common in:
+Regex:
 
-* Datadog
-* Splunk
-* Logs
-* Monitoring
+```python
+r"Order ID:\s*(\d+)"
+```
+
+Output:
+
+```python
+7821
+```
 
 ---
 
-# FINAL GOLDEN RULE
+# Final Golden Regex Framework
 
-Regex is not about memorizing symbols.
-
-Regex is about answering:
+Whenever you see a regex problem ask:
 
 1. What pattern am I looking for?
 2. One value or many values?
 3. Extract, Replace, Split, or Validate?
 4. Which characters are allowed?
 5. Which characters are forbidden?
+6. Do I need a capture group?
 
-If you can answer those 5 questions, regex becomes easy.
+If you can answer these questions, most regex problems become straightforward.

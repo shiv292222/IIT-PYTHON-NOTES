@@ -831,4 +831,1015 @@ Line Chart
 Trend
 ```
 
-If you understand those four sentences, you understand the foundation of EDA.
+# 📊 EDA Golden Notes Part 2 (Bar Chart, Pie Chart, Bubble Chart, Heatmap)
+
+---
+
+# 1. BAR CHART
+
+## Definition
+
+A Bar Chart compares values across categories.
+
+Think:
+
+```text
+Category + Number
+```
+
+Example:
+
+| City     | Sales |
+| -------- | ----- |
+| Toronto  | 300   |
+| Ottawa   | 400   |
+| Montreal | 700   |
+
+Question:
+
+```text
+Which city generated the highest sales?
+```
+
+Bar Chart is the answer.
+
+---
+
+## What Data Goes In?
+
+### X-Axis
+
+Usually categories:
+
+```text
+City
+Department
+Product
+Country
+```
+
+### Y-Axis
+
+Usually numbers:
+
+```text
+Sales
+Revenue
+Count
+Salary
+Profit
+```
+
+---
+
+## Most Common Workflow
+
+Raw Data:
+
+| city    | sales |
+| ------- | ----- |
+| Toronto | 100   |
+| Toronto | 200   |
+| Ottawa  | 150   |
+| Ottawa  | 250   |
+
+---
+
+### Step 1: Aggregate
+
+```python
+sales_per_city = (
+    df.groupby("city")["sales"]
+      .sum()
+      .reset_index()
+)
+```
+
+Output:
+
+| city    | sales |
+| ------- | ----- |
+| Ottawa  | 400   |
+| Toronto | 300   |
+
+---
+
+### Step 2: Plot
+
+```python
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8,5))
+
+plt.bar(
+    sales_per_city["city"],
+    sales_per_city["sales"]
+)
+
+plt.title("Sales By City")
+plt.xlabel("City")
+plt.ylabel("Sales")
+
+plt.show()
+```
+
+---
+
+# IMPORTANT BUSINESS THINKING
+
+Always ask:
+
+```text
+What question is the business asking?
+```
+
+---
+
+### Question
+
+```text
+Which city generated most sales?
+```
+
+Use:
+
+```python
+.sum()
+```
+
+---
+
+### Question
+
+```text
+Which city has highest average transaction?
+```
+
+Use:
+
+```python
+.mean()
+```
+
+---
+
+### Question
+
+```text
+How many transactions happened?
+```
+
+Use:
+
+```python
+.count()
+```
+
+---
+
+# Sorting Before Plotting
+
+Bad:
+
+```text
+Toronto   300
+Ottawa    400
+Montreal  700
+```
+
+Better:
+
+```python
+sales_per_city = (
+    sales_per_city
+    .sort_values(
+        "sales",
+        ascending=False
+    )
+)
+```
+
+Result:
+
+```text
+Montreal 700
+Ottawa   400
+Toronto  300
+```
+
+Much easier to understand.
+
+---
+
+# Horizontal Bar Chart
+
+When category names are long:
+
+```python
+plt.barh(
+    sales_per_city["city"],
+    sales_per_city["sales"]
+)
+```
+
+Remember:
+
+```text
+bar()
+=
+Vertical
+
+barh()
+=
+Horizontal
+```
+
+---
+
+# Value Labels
+
+Shows values on bars.
+
+Example:
+
+```python
+bars = plt.bar(
+    sales_per_city["city"],
+    sales_per_city["sales"]
+)
+
+for bar in bars:
+
+    plt.text(
+        bar.get_x() + bar.get_width()/2,
+        bar.get_height(),
+        str(bar.get_height()),
+        ha="center"
+    )
+
+plt.show()
+```
+
+---
+
+## Understanding plt.text()
+
+Syntax:
+
+```python
+plt.text(
+    x_position,
+    y_position,
+    text_to_write,
+    formatting
+)
+```
+
+Example:
+
+```python
+plt.text(
+    2,
+    100,
+    "Toronto"
+)
+```
+
+Means:
+
+```text
+Go to coordinate (2,100)
+
+Write:
+Toronto
+```
+
+---
+
+# Bar Chart Summary
+
+Use when:
+
+```text
+Comparing categories.
+```
+
+Examples:
+
+```text
+Sales by City
+
+Revenue by Product
+
+Employees by Department
+
+Profit by Country
+```
+
+---
+
+# 2. PIE CHART
+
+## Definition
+
+A Pie Chart shows how a whole is divided into parts.
+
+Think:
+
+```text
+Part of Total
+```
+
+---
+
+Example
+
+| Department | Employees |
+| ---------- | --------- |
+| IT         | 40        |
+| HR         | 20        |
+| Finance    | 40        |
+
+Total:
+
+```text
+100 Employees
+```
+
+Question:
+
+```text
+What percentage belongs
+to each department?
+```
+
+---
+
+## Pie Chart Code
+
+```python
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(6,6))
+
+plt.pie(
+    [40,20,40],
+    labels=["IT","HR","Finance"],
+    autopct="%1.1f%%"
+)
+
+plt.title("Employee Share")
+
+plt.show()
+```
+
+---
+
+## Understanding Each Part
+
+### Slice Size
+
+```python
+[40,20,40]
+```
+
+Means:
+
+```text
+IT = 40
+
+HR = 20
+
+Finance = 40
+```
+
+---
+
+### Labels
+
+```python
+labels=["IT","HR","Finance"]
+```
+
+Names of slices.
+
+---
+
+### autopct
+
+```python
+autopct="%1.1f%%"
+```
+
+Shows:
+
+```text
+40.0%
+20.0%
+40.0%
+```
+
+inside pie slices.
+
+---
+
+# When To Use Pie Chart?
+
+Question:
+
+```text
+What percentage of the total
+belongs to each category?
+```
+
+Examples:
+
+```text
+Market Share
+
+Department Share
+
+Budget Allocation
+
+Sales Contribution
+```
+
+---
+
+# Bar Chart vs Pie Chart
+
+Bar Chart:
+
+```text
+Compare values
+```
+
+Pie Chart:
+
+```text
+Show percentage of total
+```
+
+---
+
+# Reality
+
+Most analysts prefer:
+
+```text
+Bar Chart > Pie Chart
+```
+
+Because humans compare heights better than slices.
+
+---
+
+# 3. BUBBLE CHART
+
+## Definition
+
+Bubble Chart = Scatter Plot + One More Variable
+
+Think:
+
+```text
+X
+Y
+Size
+```
+
+---
+
+Scatter Plot:
+
+```text
+Experience
+Salary
+```
+
+Bubble Chart:
+
+```text
+Experience
+Salary
+Age
+```
+
+---
+
+Example Dataset
+
+| Experience | Salary | Age |
+| ---------- | ------ | --- |
+| 2          | 50000  | 22  |
+| 5          | 70000  | 35  |
+| 10         | 120000 | 55  |
+
+---
+
+Question
+
+```text
+Show relationship between
+Experience and Salary
+
+AND ALSO
+
+show Age
+```
+
+---
+
+# Bubble Chart Logic
+
+```text
+X = Experience
+
+Y = Salary
+
+Bubble Size = Age
+```
+
+---
+
+## Code
+
+```python
+plt.scatter(
+    df["experience"],
+    df["salary"],
+    s=df["age"] * 20
+)
+
+plt.show()
+```
+
+---
+
+# Understanding s=
+
+```python
+s=
+```
+
+means:
+
+```text
+Size of bubble
+```
+
+---
+
+Example:
+
+```python
+age = 22
+```
+
+Bubble size:
+
+```python
+22 * 20
+=
+440
+```
+
+---
+
+Question:
+
+```text
+Why multiply by 20?
+```
+
+Answer:
+
+Because age itself creates tiny bubbles.
+
+Scaling makes size differences visible.
+
+---
+
+Important:
+
+```python
+s=df["age"] * 20
+```
+
+DOES NOT change age.
+
+It only changes visual size.
+
+---
+
+# When To Use Bubble Chart?
+
+Question:
+
+```text
+Can I show a third variable
+inside a scatter plot?
+```
+
+Answer:
+
+```text
+Bubble Chart
+```
+
+---
+
+# Reality
+
+Rarely used.
+
+Good to know.
+
+Not as important as:
+
+```text
+Scatter
+Bar
+Heatmap
+```
+
+---
+
+# 4. HEATMAP
+
+## Definition
+
+A Heatmap is a visual representation of a correlation matrix.
+
+Think:
+
+```text
+Relationship between
+ALL numerical columns
+```
+
+---
+
+# Before Heatmap
+
+Suppose:
+
+| Age | Salary | Experience |
+| --- | ------ | ---------- |
+| 22  | 45000  | 1          |
+| 25  | 50000  | 2          |
+| 30  | 65000  | 5          |
+
+Question:
+
+```text
+Which columns are related?
+```
+
+---
+
+# Correlation
+
+Correlation measures relationship strength.
+
+---
+
+### Positive Correlation
+
+```text
+Age ↑
+
+Salary ↑
+```
+
+Result:
+
+```text
++1
+```
+
+---
+
+### Negative Correlation
+
+```text
+Age ↑
+
+Work Hours ↓
+```
+
+Result:
+
+```text
+-1
+```
+
+---
+
+### No Correlation
+
+```text
+Random Pattern
+```
+
+Result:
+
+```text
+0
+```
+
+---
+
+# Correlation Scale
+
+```text
++1
+=
+Perfect Positive
+
+0
+=
+No Relationship
+
+-1
+=
+Perfect Negative
+```
+
+---
+
+# Correlation Matrix
+
+```python
+corr_matrix = df.corr()
+```
+
+Think:
+
+```text
+Age vs Salary
+
+Age vs Experience
+
+Salary vs Experience
+
+...
+```
+
+all at once.
+
+---
+
+# What Is Happening Behind The Scenes?
+
+Pandas asks:
+
+```text
+As Age increases,
+
+does Salary increase?
+```
+
+If yes:
+
+```text
+High Positive Correlation
+```
+
+---
+
+Then asks:
+
+```text
+As Experience increases,
+
+does Salary increase?
+```
+
+And keeps repeating for every column pair.
+
+---
+
+Result:
+
+```python
+corr_matrix
+```
+
+---
+
+# Heatmap Code
+
+```python
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+numeric_df = df.select_dtypes(
+    include="number"
+)
+
+corr_matrix = numeric_df.corr()
+
+plt.figure(figsize=(10,6))
+
+sns.heatmap(
+    corr_matrix,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm",
+    linewidths=0.5,
+    vmin=-1,
+    vmax=1,
+    center=0
+)
+
+plt.title(
+    "Correlation Heatmap"
+)
+
+plt.show()
+```
+
+---
+
+# Understanding Important Parameters
+
+### annot=True
+
+Show numbers inside boxes.
+
+Example:
+
+```text
+0.95
+0.82
+-0.70
+```
+
+---
+
+### fmt=".2f"
+
+Show:
+
+```text
+0.95
+```
+
+instead of:
+
+```text
+0.954321987
+```
+
+---
+
+### cmap="coolwarm"
+
+Color theme.
+
+---
+
+### vmin=-1
+
+Minimum correlation.
+
+---
+
+### vmax=1
+
+Maximum correlation.
+
+---
+
+### center=0
+
+Zero becomes neutral color.
+
+---
+
+# Heatmap Purpose
+
+Question:
+
+```text
+Which numerical columns
+are related?
+```
+
+Answer:
+
+```text
+Heatmap
+```
+
+---
+
+# Scatter vs Heatmap
+
+Scatter:
+
+```text
+Relationship between
+TWO columns
+```
+
+Example:
+
+```text
+Experience vs Salary
+```
+
+---
+
+Heatmap:
+
+```text
+Relationship between
+ALL numerical columns
+```
+
+Example:
+
+```text
+Age vs Salary
+
+Age vs Experience
+
+Salary vs Bonus
+
+Bonus vs Performance
+
+...
+```
+
+all together.
+
+---
+
+# FINAL GOLDEN TABLE
+
+| Chart        | Input                      | Main Purpose       |
+| ------------ | -------------------------- | ------------------ |
+| Histogram    | 1 Numerical Column         | Distribution       |
+| Box Plot     | 1 Numerical Column         | Outliers & Summary |
+| Scatter Plot | 2 Numerical Columns        | Relationship       |
+| Line Chart   | Time + Number              | Trend              |
+| Bar Chart    | Category + Number          | Comparison         |
+| Pie Chart    | Categories as % of Total   | Composition        |
+| Bubble Chart | X + Y + Size               | Show 3rd Variable  |
+| Heatmap      | Multiple Numerical Columns | Correlation        |
+|              |                            |                    |
+
+---
+
+# Interview One-Liners
+
+Histogram
+
+```text
+Shows distribution of a numerical variable.
+```
+
+Box Plot
+
+```text
+Shows spread, median and outliers.
+```
+
+Scatter Plot
+
+```text
+Shows relationship between two numerical variables.
+```
+
+Line Chart
+
+```text
+Shows trends over time.
+```
+
+Bar Chart
+
+```text
+Compares values across categories.
+```
+
+Pie Chart
+
+```text
+Shows parts of a whole.
+```
+
+Bubble Chart
+
+```text
+Scatter Plot with a third variable represented by size.
+```
+
+Heatmap
+
+```text
+Visualizes correlation between numerical variables.
+```
+
